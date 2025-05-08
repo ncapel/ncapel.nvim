@@ -1,5 +1,4 @@
 return {
-
   {
     'neovim/nvim-lspconfig',
     dependencies = {
@@ -108,10 +107,10 @@ return {
         },
       }
 
-      local capabilities = require('blink.cmp').get_lsp_capabilities()
-
+      --      local capabilities = require('blink.cmp').get_lsp_capabilities()
+      local capabilities = vim.lsp.protocol.make_client_capabilities()
+      capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
       local servers = {
-
         lua_ls = {
           settings = {
             Lua = {
@@ -121,15 +120,27 @@ return {
             },
           },
         },
+        gopls = {
+          settings = {
+            gopls = {
+              analyses = {
+                unusedparams = true,
+                unreachable = true,
+              },
+              staticcheck = true,
+            },
+          },
+        },
       }
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'stylua', -- Used to format Lua code
+        'stylua',
+        'typescript-language-server',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
-        ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
+        ensure_installed = {},
         automatic_installation = false,
         handlers = {
           function(server_name)
@@ -139,6 +150,13 @@ return {
           end,
         },
       }
+    end,
+  },
+  {
+    'windwp/nvim-autopairs',
+    event = 'InsertEnter',
+    config = function()
+      require('nvim-autopairs').setup {}
     end,
   },
 }
